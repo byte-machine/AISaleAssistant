@@ -1,6 +1,10 @@
 package models
 
+import (
+	"github.com/lib/pq"
+)
+
 type Chat struct {
-	UserId   string   `db:"user_id"`
-	Messages []string `db:"brand"`
+	UserID   string         `gorm:"column:user_id;primaryKey"`
+	Messages pq.StringArray `gorm:"column:messages;type:text[]"` // Используем pq.StringArray
 }

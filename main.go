@@ -12,6 +12,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	config.InitClient(settings.OpenaiApiKey)
 
 	database.Connect(settings)
 	defer database.Disconnect()

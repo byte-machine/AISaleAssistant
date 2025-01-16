@@ -1,38 +1,37 @@
 package ai_controllers
 
 import (
-	"AISale/api/infrastructure/rest"
-	"AISale/database/models/repos/chat_repos"
 	"AISale/services/chat"
 	"github.com/gin-gonic/gin"
-	"github.com/sashabaranov/go-openai"
 	"net/http"
 )
 
-func GetMessage(c *gin.Context) {
+func SendMessage(c *gin.Context) {
 	userId := c.PostForm("user_id")
-	client := rest.GetAIClient()
+	userMessage := c.PostForm("user_message")
 
-	var messages []openai.ChatCompletionMessage
-
-	rawMessages, err := chat_repos.CheckIfExist(userId)
+	messages, err := chat.GetMessages(userId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
-	} else if len(rawMessages) == 0 {
-		messages = chat.StartMessages()
-	} else {
-		messages, err = chat.ParseArrayToMessages(rawMessages)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		}
 	}
 
-	response, err := client.CreateChatCompletion(c, openai.ChatCompletionRequest{
-		Model:    openai.GPT4,
-		Messages: messages,
-	})
+	chat.AddMessage(&messages, "user", userMessage)
 
-	c.JSON(http.StatusCreated, gin.H{"status": status, "book": book})
+	response, err := chat.GetAnswer(c, messages)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	chat.AddMessage(&messages, "assistant", response.Choices[0].Message.Content)
+
+	err = chat.SaveMessages(userId, messages)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"answer": response.Choices[0].Message.Content})
 	return
 }
