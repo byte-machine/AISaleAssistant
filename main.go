@@ -17,5 +17,7 @@ func main() {
 	database.Connect(settings)
 	defer database.Disconnect()
 
+	// parsing.ParsePhonesCSV("data/excel/phones.csv")
+
 	api.RouterStart(settings)
 }
