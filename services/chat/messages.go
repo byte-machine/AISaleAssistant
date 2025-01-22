@@ -9,8 +9,13 @@ import (
 	"strings"
 )
 
-func GetHistory(userId string) ([]string, error) {
-	var messages []string
+type Message struct {
+	Role    string
+	Content string
+}
+
+func GetHistory(userId string) ([]Message, error) {
+	var messages []Message
 
 	rawMessages, err := chat_repos.CheckIfExist(userId)
 	if err == nil && len(rawMessages) > 0 {
@@ -106,8 +111,9 @@ func ParseArrayToMessages(arrayMessages []string) ([]openai.ChatCompletionMessag
 
 	return messages, nil
 }
-func ParseArrayToArray(arrayMessages []string) ([]string, error) {
-	var messages []string
+
+func ParseArrayToArray(arrayMessages []string) ([]Message, error) {
+	var messages []Message
 
 	for _, value := range arrayMessages {
 		parts := strings.SplitN(value, "||", 2)
@@ -116,9 +122,9 @@ func ParseArrayToArray(arrayMessages []string) ([]string, error) {
 		if parts[0] == "system" {
 			continue
 		} else if len(parts) == 2 && set.Contains(parts[0]) {
-			messages = append(messages, parts[1])
+			messages = append(messages, Message{Role: parts[0], Content: parts[1]})
 		} else {
-			return []string{}, errors.New("messages have wrong structure, incorrect user type")
+			return []Message{}, errors.New("messages have wrong structure, incorrect user type")
 		}
 	}
 
