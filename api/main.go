@@ -18,7 +18,7 @@ func RouterStart(settings config.Settings) {
 		MaxAge:       12 * 60 * 60,
 	}))
 
-	rest.AIRoutes(r, settings)
+	rest.ChatRoutes(r, settings)
 
 	err := r.Run(":8081")
 	if err != nil {

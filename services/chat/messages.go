@@ -9,6 +9,19 @@ import (
 	"strings"
 )
 
+func GetHistory(userId string) ([]string, error) {
+	var messages []string
+
+	rawMessages, err := chat_repos.CheckIfExist(userId)
+	if err == nil && len(rawMessages) > 0 {
+		messages, err = ParseArrayToArray(rawMessages)
+
+		return messages, err
+	}
+
+	return messages, err
+}
+
 func GetMessages(userId string) ([]openai.ChatCompletionMessage, error) {
 	var messages []openai.ChatCompletionMessage
 
@@ -19,9 +32,8 @@ func GetMessages(userId string) ([]openai.ChatCompletionMessage, error) {
 		messages = StartMessages()
 	} else {
 		messages, err = ParseArrayToMessages(rawMessages)
-		if err != nil {
-			return messages, err
-		}
+
+		return messages, err
 	}
 
 	return messages, nil
@@ -89,6 +101,24 @@ func ParseArrayToMessages(arrayMessages []string) ([]openai.ChatCompletionMessag
 			})
 		} else {
 			return []openai.ChatCompletionMessage{}, errors.New("messages have wrong structure, incorrect user type")
+		}
+	}
+
+	return messages, nil
+}
+func ParseArrayToArray(arrayMessages []string) ([]string, error) {
+	var messages []string
+
+	for _, value := range arrayMessages {
+		parts := strings.SplitN(value, "||", 2)
+
+		set := mapset.NewSet("system", "assistant", "user")
+		if parts[0] == "system" {
+			continue
+		} else if len(parts) == 2 && set.Contains(parts[0]) {
+			messages = append(messages, parts[1])
+		} else {
+			return []string{}, errors.New("messages have wrong structure, incorrect user type")
 		}
 	}
 
