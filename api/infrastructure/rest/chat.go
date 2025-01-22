@@ -11,6 +11,6 @@ func ChatRoutes(router *gin.Engine, settings config.Settings) {
 	productGroup := router.Group("chat")
 	{
 		productGroup.POST("/send_message", ai_controllers.SendMessage)
-		productGroup.GET("/get_chat", chat_controllers.GetChatHistory)
+		productGroup.POST("/get_chat", chat_controllers.GetChatHistory)
 	}
 }
