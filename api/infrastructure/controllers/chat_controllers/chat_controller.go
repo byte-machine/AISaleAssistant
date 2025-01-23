@@ -16,5 +16,4 @@ func GetChatHistory(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"answer": messages})
-	return
 }

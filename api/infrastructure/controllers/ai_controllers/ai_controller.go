@@ -4,6 +4,7 @@ import (
 	"AISale/database/models/repos/phone_repos"
 	"AISale/services/chat"
 	"github.com/gin-gonic/gin"
+	"github.com/sashabaranov/go-openai"
 	"log"
 	"net/http"
 	"strings"
@@ -56,5 +57,20 @@ func SendMessage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"answer": response.Choices[0].Message.Content})
-	return
+}
+
+func SendQuery(c *gin.Context) {
+	query := c.PostForm("query")
+
+	var messages []openai.ChatCompletionMessage
+
+	chat.AddMessage(&messages, openai.ChatMessageRoleUser, query)
+
+	answer, err := chat.GetAnswer(c, messages)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"answer": answer.Choices[0].Message.Content})
 }

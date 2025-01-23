@@ -10,7 +10,8 @@ import (
 func ChatRoutes(router *gin.Engine, settings config.Settings) {
 	productGroup := router.Group("chat")
 	{
-		productGroup.POST("/send_message", ai_controllers.SendMessage)
+		productGroup.POST("/send_message", ai_controllers.SendQuery)
+		productGroup.POST("/send_query", ai_controllers.SendMessage)
 		productGroup.POST("/get_chat", chat_controllers.GetChatHistory)
 	}
 }
