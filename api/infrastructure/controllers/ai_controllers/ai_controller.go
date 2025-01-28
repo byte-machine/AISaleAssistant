@@ -62,9 +62,13 @@ func SendMessage(c *gin.Context) {
 func SendQuery(c *gin.Context) {
 	query := c.PostForm("query")
 
+	queries := strings.Split(query, "|||||")
+
 	var messages []openai.ChatCompletionMessage
 
-	chat.AddMessage(&messages, openai.ChatMessageRoleUser, query)
+	for _, value := range queries {
+		chat.AddMessage(&messages, openai.ChatMessageRoleUser, value)
+	}
 
 	answer, err := chat.GetAnswer(c, messages)
 	if err != nil {
