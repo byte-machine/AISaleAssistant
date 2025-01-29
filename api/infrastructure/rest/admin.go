@@ -9,7 +9,8 @@ import (
 func AdminRoutes(router *gin.Engine, settings config.Settings) {
 	productGroup := router.Group("chat")
 	{
+		productGroup.POST("/send_query")
 		productGroup.POST("/send_query", ai_controllers.SendQuery)
-		// productGroup.POST("/get", ai_controllers.SendMessage)
+		// productGroup.POST("/get", ai_controllers.)
 	}
 }

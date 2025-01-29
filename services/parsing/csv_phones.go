@@ -4,8 +4,8 @@ import (
 	. "AISale/database/models"
 	"AISale/database/models/repos/phone_repos"
 	"encoding/csv"
+	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 
@@ -85,19 +85,18 @@ func readCSV(filePath string) ([]Phone, error) {
 	return phones, nil
 }
 
-func ParsePhonesCSV(filePath string) {
+func ParsePhonesCSV(filePath string) error {
 	phones, err := readCSV(filePath)
 	if err != nil {
-		log.Fatalf("failed to read CSV file: %v", err)
+		return errors.New("failed to read CSV file: " + err.Error())
 	}
 
-	// Вставка данных в базу
 	for _, phone := range phones {
 		err = phone_repos.Create(phone)
 	}
 	if err != nil {
-		log.Fatalf("failed to insert phones into database: %v", err)
+		return errors.New("failed to insert phones into database: " + err.Error())
 	}
 
-	log.Println("Data successfully inserted into the database.")
+	return nil
 }
