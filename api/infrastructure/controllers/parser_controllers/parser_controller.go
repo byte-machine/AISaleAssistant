@@ -7,7 +7,7 @@ import (
 )
 
 func ParsePhones(c *gin.Context) {
-	err := parsing.ParsePhonesCSV("files/excel/phones.csv")
+	err := parsing.ParsePhonesCSV("./files/excel/phones.csv")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
