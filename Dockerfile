@@ -32,7 +32,7 @@ COPY --from=builder /app/main .
 COPY --from=builder /app/.env .env
 
 # Открываем порт, который будет использовать сервис
-EXPOSE 8080
+EXPOSE 8081
 
 # Запускаем приложение
 CMD ["./main"]
