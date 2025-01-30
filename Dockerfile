@@ -16,6 +16,9 @@ COPY . .
 # Копируем .env файл в контейнер (если он есть в проекте)
 COPY .env .env
 
+# Копируем папку с файлами (например, для работы с файлами)
+COPY files files
+
 # Собираем бинарный файл Go
 RUN GOOS=linux GOARCH=amd64 go build -o main .
 
@@ -30,6 +33,9 @@ COPY --from=builder /app/main .
 
 # Копируем .env файл, если нужно использовать его в контейнере
 COPY --from=builder /app/.env .env
+
+# Копируем файлы из каталога "files" в контейнер
+COPY --from=builder /app/files /app/files
 
 # Открываем порт, который будет использовать сервис
 EXPOSE 8081
