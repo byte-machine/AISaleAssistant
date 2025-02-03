@@ -1,7 +1,6 @@
 package parsing
 
 import (
-	. "AISale/database/models"
 	"AISale/database/models/repos/phone_repos"
 	"encoding/csv"
 	"errors"
