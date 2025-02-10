@@ -7,13 +7,16 @@ import (
 )
 
 type Settings struct {
-	DbHost       string
-	DbUser       string
-	DbPassword   string
-	DbName       string
-	DbPort       string
-	Ssl          string
-	OpenaiApiKey string
+	DbHost         string
+	DbUser         string
+	DbPassword     string
+	DbName         string
+	DbPort         string
+	Ssl            string
+	OpenaiApiKey   string
+	TwilioUsername string
+	TwilioToken    string
+	TwilioNumber   string
 }
 
 func LoadENV() (Settings, error) {
@@ -23,13 +26,16 @@ func LoadENV() (Settings, error) {
 	}
 
 	settings := Settings{
-		DbHost:       os.Getenv("DB_HOST"),
-		DbUser:       os.Getenv("DB_USER"),
-		DbPassword:   os.Getenv("DB_PASSWORD"),
-		DbName:       os.Getenv("DB_NAME"),
-		DbPort:       os.Getenv("DB_PORT"),
-		Ssl:          os.Getenv("DB_SSL"),
-		OpenaiApiKey: os.Getenv("OPENAI_API_KEY"),
+		DbHost:         os.Getenv("DB_HOST"),
+		DbUser:         os.Getenv("DB_USER"),
+		DbPassword:     os.Getenv("DB_PASSWORD"),
+		DbName:         os.Getenv("DB_NAME"),
+		DbPort:         os.Getenv("DB_PORT"),
+		Ssl:            os.Getenv("DB_SSL"),
+		OpenaiApiKey:   os.Getenv("OPENAI_API_KEY"),
+		TwilioUsername: os.Getenv("TWILIO_ACCOUNT_SID"),
+		TwilioToken:    os.Getenv("TWILIO_AUTH_TOKEN"),
+		TwilioNumber:   os.Getenv("TWILIO_PHONE_NUMBER"),
 	}
 
 	return settings, nil
