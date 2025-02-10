@@ -11,6 +11,7 @@ func ChatRoutes(router *gin.Engine, settings config.Settings) {
 	productGroup := router.Group("chat")
 	{
 		productGroup.POST("/send_message", ai_controllers.SendMessage)
+		productGroup.POST("/whatsapp_webhook", ai_controllers.WhatsappWebhook)
 		productGroup.POST("/get_chat", chat_controllers.GetChatHistory)
 	}
 }
