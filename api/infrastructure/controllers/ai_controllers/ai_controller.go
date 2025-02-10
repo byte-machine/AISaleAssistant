@@ -11,10 +11,8 @@ import (
 )
 
 type WebhookRequest struct {
-	From      string `json:"From"`
-	Body      string `json:"Body"`
-	NumMedia  string `json:"NumMedia"`
-	MediaUrl0 string `json:"MediaUrl0"`
+	From string `json:"From"`
+	Body string `json:"Body"`
 }
 
 func SendMessage(c *gin.Context) {
