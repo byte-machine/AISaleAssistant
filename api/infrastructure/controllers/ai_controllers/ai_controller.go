@@ -29,22 +29,18 @@ func SendMessage(c *gin.Context) {
 }
 
 func WhatsappWebhook(c *gin.Context) {
-	var req WebhookRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Printf("error: Invalid request")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
+	from := c.PostForm("From")
+	body := c.PostForm("Body")
 
-	log.Printf("💬 Сообщение от %s: %s\n", req.From, req.Body)
+	log.Printf("💬 Сообщение от %s: %s\n", from, body)
 
-	response, err := chat.Conservation(c, req.From, req.Body)
+	response, err := chat.Conservation(c, from, body)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if err := twillio.SendTwilioMessage(req.From, response.Choices[0].Message.Content); err != nil {
+	if err := twillio.SendTwilioMessage(from, response.Choices[0].Message.Content); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
