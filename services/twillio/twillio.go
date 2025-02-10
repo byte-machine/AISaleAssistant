@@ -9,7 +9,7 @@ import (
 	v2010 "github.com/twilio/twilio-go/rest/api/v2010"
 )
 
-func SendWhatsAppMessage(to, body string) error {
+func SendTwilioMessage(to, body string) error {
 	client := twilio.NewRestClientWithParams(twilio.ClientParams{
 		Username: os.Getenv("TWILIO_ACCOUNT_SID"),
 		Password: os.Getenv("TWILIO_AUTH_TOKEN"),
