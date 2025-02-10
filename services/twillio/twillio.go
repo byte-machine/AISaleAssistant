@@ -16,7 +16,7 @@ func SendTwilioMessage(to, body string) error {
 	})
 
 	params := &v2010.CreateMessageParams{}
-	params.SetTo("whatsapp:" + to)
+	params.SetTo(to)
 	params.SetFrom("whatsapp:+77789802147")
 	params.SetBody(body)
 
