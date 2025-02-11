@@ -48,3 +48,16 @@ func SaveChat(userId string, messages []string) error {
 
 	return nil
 }
+
+func GetAllChats() ([]Chat, error) {
+	db := database.GetDB()
+	var chats []Chat
+
+	if err := db.Table("chats").Find(&chats).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []Chat{}, nil
+		}
+		return []Chat{}, err
+	}
+	return chats, nil
+}
