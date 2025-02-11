@@ -13,6 +13,10 @@ type Message struct {
 	Role    string
 	Content string
 }
+type Chat struct {
+	UserID   string
+	Messages []Message
+}
 
 func GetHistory(userId string) ([]Message, error) {
 	var messages []Message
@@ -25,6 +29,24 @@ func GetHistory(userId string) ([]Message, error) {
 	}
 
 	return messages, err
+}
+
+func GetAllChats() ([]Chat, error) {
+	var parsedChats []Chat
+
+	chats, err := chat_repos.GetAllChats()
+	if err == nil && len(chats) > 0 {
+		for _, chat := range chats {
+			messages, err := ParseArrayToArray(chat.Messages)
+			parsedChats = append(parsedChats, Chat{UserID: chat.UserID, Messages: messages})
+
+			return parsedChats, err
+		}
+
+		return parsedChats, err
+	}
+
+	return parsedChats, err
 }
 
 func GetMessages(userId string) ([]openai.ChatCompletionMessage, error) {
