@@ -11,7 +11,7 @@ func GetAnswer(c *gin.Context, messages []openai.ChatCompletionMessage) (openai.
 	client := config.GetAIClient()
 
 	response, err := client.CreateChatCompletion(c, openai.ChatCompletionRequest{
-		Model:    "ft:gpt-3.5-turbo-0125:personal::AzJRcq4v",
+		Model:    "ft:gpt-3.5-turbo-0125:personal::B07BtIZ4",
 		Messages: messages,
 	})
 	if err != nil {
