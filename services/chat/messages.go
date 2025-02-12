@@ -38,9 +38,11 @@ func GetAllChats() ([]Chat, error) {
 	if err == nil && len(chats) > 0 {
 		for _, chat := range chats {
 			messages, err := ParseArrayToArray(chat.Messages)
-			parsedChats = append(parsedChats, Chat{UserID: chat.UserID, Messages: messages})
+			if err != nil {
+				continue
+			}
 
-			return parsedChats, err
+			parsedChats = append(parsedChats, Chat{UserID: chat.UserID, Messages: messages})
 		}
 
 		return parsedChats, err
