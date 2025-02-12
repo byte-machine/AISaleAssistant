@@ -1,7 +1,6 @@
 package ai_controllers
 
 import (
-	"AISale/database/models/repos/chat_repos"
 	"AISale/services/chat"
 	"AISale/services/twillio"
 	"github.com/gin-gonic/gin"
@@ -24,7 +23,7 @@ func SendMessage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"answer": response.Choices[0].Message.Content})
+	c.JSON(http.StatusOK, gin.H{"answer": response})
 }
 
 func WhatsappWebhook(c *gin.Context) {
@@ -39,16 +38,9 @@ func WhatsappWebhook(c *gin.Context) {
 		return
 	}
 
-	if response.Choices[0].Message.Content != "ending" {
-		if err := twillio.SendTwilioMessage(from, response.Choices[0].Message.Content); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-	} else {
-		if err := chat_repos.SetClientStatusTrue(from); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-			return
-		}
+	if err := twillio.SendTwilioMessage(from, response); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.Status(http.StatusOK)
