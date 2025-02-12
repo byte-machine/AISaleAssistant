@@ -61,3 +61,9 @@ func GetAllChats() ([]Chat, error) {
 	}
 	return chats, nil
 }
+
+func SetClientStatusTrue(userID string) error {
+	db := database.GetDB()
+
+	return db.Model(&Chat{}).Where("user_id = ?", userID).Update("is_client", true).Error
+}

@@ -27,7 +27,7 @@ func Connect(settings config.Settings) {
 	}
 
 	// Автоматическое создание таблиц
-	err = db.AutoMigrate(&Phone{}, &Chat{})
+	err = db.AutoMigrate(&Chat{})
 	if err != nil {
 		log.Fatalf("Не удалось создать таблицы: %v", err)
 	}
