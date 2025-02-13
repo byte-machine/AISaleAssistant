@@ -5,6 +5,7 @@ import (
 	"AISale/database/models/repos/chat_repos"
 	"github.com/gin-gonic/gin"
 	"github.com/sashabaranov/go-openai"
+	"strings"
 )
 
 func GetAnswer(c *gin.Context, messages []openai.ChatCompletionMessage) (openai.ChatCompletionResponse, error) {
@@ -34,11 +35,16 @@ func Conservation(c *gin.Context, userId string, userMessage string) (string, er
 		return "", err
 	}
 
-	if response.Choices[0].Message.Content == "ending" {
+	if strings.Contains(response.Choices[0].Message.Content, "ending") {
 		if err := chat_repos.SetClientStatusTrue(userId); err != nil {
 			return "", err
 		}
-		response.Choices[0].Message.Content = "Отлично, мы позвоним вам в ближайшее время для совершения оплаты услуг."
+		//response.Choices[0].Message.Content = "Отлично, мы позвоним вам в ближайшее время для совершения оплаты услуг."
+
+		response.Choices[0].Message.Content = strings.ReplaceAll(response.Choices[0].Message.Content, "ending", "")
+		if len(response.Choices[0].Message.Content) <= 5 {
+			response.Choices[0].Message.Content = "Отлично, мы позвоним вам в ближайшее время для совершения оплаты услуг."
+		}
 	}
 
 	AddMessage(&messages, "assistant", response.Choices[0].Message.Content)
