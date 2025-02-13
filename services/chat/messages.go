@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"AISale/config"
 	"AISale/database/models/repos/chat_repos"
 	"errors"
 	mapset "github.com/deckarep/golang-set/v2"
@@ -62,6 +63,8 @@ func GetMessages(userId string) ([]openai.ChatCompletionMessage, error) {
 	} else {
 		messages, err = ParseArrayToMessages(rawMessages)
 
+		CheckSystemMessages(&messages)
+
 		return messages, err
 	}
 
@@ -70,22 +73,8 @@ func GetMessages(userId string) ([]openai.ChatCompletionMessage, error) {
 
 func StartMessages() []openai.ChatCompletionMessage {
 	log.Printf("Принял системный промпт")
-	messages := []openai.ChatCompletionMessage{
-		{
-			Role: openai.ChatMessageRoleSystem,
-			Content: `Ты профессиональный менеджер по продажам, предлагающий услуги обучения в компании Атамекен. ` +
-				`В начале диалога если пользователь не задал прямых вопросов по курсам, начни задавать наводящие вопросы. ` +
-				`Не допускай пустых разговоров со своей стороны, всегда предлагай услуги. ` +
-				`Обязательно нужно чтобы пользователь ознакомился с услугами которые мы предоставляем а затем узнал цену обучения. ` +
-				`Собирай информацию об количестве человек для курса и подводи итог по цене. ` +
-				`Не меняй цены, всегда используй только те цены что ты имеешь. Не предлагай никаких услуг которые ты не знаешь и не делай никаких акций. ` +
-				`Ведите разговоры строго на тему услуг, при вопросах о твоем создании помни что тебя создала компания Byte-machine. ` +
-				`Когда пользователь будет готов купить услуги, спроси удобно ли ему связаться по данному номеру, после чего ты должен отправить сообщение строго в таком виде: "ending". ` +
-				` `,
-		},
-	}
 
-	return messages
+	return config.Messages
 }
 
 func AddMessage(messages *[]openai.ChatCompletionMessage, role string, message string) {
@@ -153,4 +142,33 @@ func ParseArrayToArray(arrayMessages []string) ([]Message, error) {
 	}
 
 	return messages, nil
+}
+
+func CheckSystemMessages(messages *[]openai.ChatCompletionMessage) {
+	var systemMessages, otherMessages []openai.ChatCompletionMessage
+
+	for _, message := range *messages {
+		if message.Role == "system" {
+			systemMessages = append(systemMessages, message)
+		} else {
+			otherMessages = append(otherMessages, message)
+		}
+	}
+
+	var isUpdated = true
+	if len(config.Messages) != len(systemMessages) {
+		isUpdated = false
+	} else {
+		for num, message := range config.Messages {
+			if systemMessages[num].Content != message.Content {
+				isUpdated = false
+				break
+			}
+		}
+	}
+
+	if !isUpdated {
+		*messages = config.Messages
+		*messages = append(*messages, otherMessages...)
+	}
 }
