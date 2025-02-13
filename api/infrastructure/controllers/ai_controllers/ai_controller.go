@@ -3,9 +3,11 @@ package ai_controllers
 import (
 	"AISale/services/chat"
 	"AISale/services/twillio"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm/logger"
 )
 
 type WebhookRequest struct {
@@ -17,11 +19,25 @@ func SendMessage(c *gin.Context) {
 	userId := c.PostForm("user_id")
 	userMessage := c.PostForm("user_message")
 
+	logger.Info("📩 Новое сообщение от пользователя", map[string]interface{}{
+		"userId":      userId,
+		"userMessage": userMessage,
+	})
+
 	response, err := chat.Conservation(c, userId, userMessage)
 	if err != nil {
+		logger.Error("Error processing message", map[string]interface{}{
+			"error": err.Error(),
+		})
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	logger.Info("при отправке сообщения пользователю", map[string]interface{}{
+		"userId":   userId,
+		"response": response,
+	})
 
 	c.JSON(http.StatusOK, gin.H{"answer": response})
 }
