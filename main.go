@@ -5,6 +5,7 @@ import (
 	"AISale/config"
 	"AISale/database"
 	"log"
+	"logger"
 
 	"gorm.io/gorm/logger"
 )
