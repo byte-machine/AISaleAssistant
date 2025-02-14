@@ -4,10 +4,9 @@ import (
 	"AISale/api"
 	"AISale/config"
 	"AISale/database"
-	"log"
-	"logger"
+	"AISale/logger" // Your local logger
 
-	"gorm.io/gorm/logger"
+	"log"
 )
 
 func main() {
@@ -18,15 +17,12 @@ func main() {
 		logger.Error("Failed to load environment variables", map[string]interface{}{
 			"error": err.Error(),
 		})
-
 		log.Fatal(err)
 	}
 	config.InitClient(settings.OpenaiApiKey)
 
 	database.Connect(settings)
 	defer database.Disconnect()
-
-	logger.Info("Starting api server", nil)
 
 	api.RouterStart(settings)
 }

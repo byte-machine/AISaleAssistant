@@ -1,0 +1,25 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /app/logs/*.log
+    fields:
+      app_name: "AISaleAssistant"
+    fields_under_root: true
+    json.keys_under_root: true
+    json.add_error_key: true
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+setup.kibana:
+  host: "http://kibana:5601"
+
+logging:
+  level: info
+  to_files: true
+  files:
+    path: /var/log/filebeat
+    name: filebeat.log
+    keepfiles: 7
+    permissions: 0644

@@ -1,13 +1,13 @@
 package ai_controllers
 
 import (
+	"AISale/logger"
 	"AISale/services/chat"
 	"AISale/services/twillio"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm/logger"
 )
 
 type WebhookRequest struct {
@@ -29,12 +29,11 @@ func SendMessage(c *gin.Context) {
 		logger.Error("Error processing message", map[string]interface{}{
 			"error": err.Error(),
 		})
-
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	logger.Info("при отправке сообщения пользователю", map[string]interface{}{
+	logger.Info("Отправка сообщения пользователю", map[string]interface{}{
 		"userId":   userId,
 		"response": response,
 	})

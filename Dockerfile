@@ -26,7 +26,7 @@ RUN GOOS=linux GOARCH=amd64 go build -o main .
 FROM alpine:latest
 
 # Устанавливаем рабочую директорию
-WORKDIR /root/
+WORKDIR /root/  
 
 # Копируем скомпилированный бинарник из предыдущего шага
 COPY --from=builder /app/main .
