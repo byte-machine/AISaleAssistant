@@ -19,11 +19,11 @@ func GetChatHistory(c *gin.Context) {
 }
 
 func GetChats(c *gin.Context) {
-	messages, err := chat.GetAllChats()
+	chats, err := chat.GetAllChats()
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"answer": messages})
+	c.JSON(http.StatusOK, gin.H{"answer": chats})
 }

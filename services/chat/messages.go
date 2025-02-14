@@ -2,48 +2,39 @@ package chat
 
 import (
 	"AISale/config"
+	. "AISale/database/models"
 	"AISale/database/models/repos/chat_repos"
 	"errors"
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/sashabaranov/go-openai"
 	"log"
 	"strings"
+	"time"
 )
 
-type Message struct {
-	Role    string
-	Content string
-}
-type Chat struct {
-	UserID   string
-	Messages []Message
-}
+//type Message struct {
+//	Role    string
+//	Content string
+//}
+//type Chat struct {
+//	UserID   string
+//	Messages []Message
+//}
 
 func GetHistory(userId string) ([]Message, error) {
-	var messages []Message
-
-	rawMessages, err := chat_repos.CheckIfExist(userId)
-	if err == nil && len(rawMessages) > 0 {
-		messages, err = ParseArrayToArray(rawMessages)
-
-		return messages, err
-	}
+	messages, err := chat_repos.CheckIfExist(userId)
 
 	return messages, err
 }
 
-func GetAllChats() ([]Chat, error) {
-	var parsedChats []Chat
+func GetAllChats() ([]string, error) {
+	var parsedChats []string
 
 	chats, err := chat_repos.GetAllChats()
 	if err == nil && len(chats) > 0 {
 		for _, chat := range chats {
-			messages, err := ParseArrayToArray(chat.Messages)
-			if err != nil {
-				continue
-			}
 
-			parsedChats = append(parsedChats, Chat{UserID: chat.UserID, Messages: messages})
+			parsedChats = append(parsedChats, chat.UserID)
 		}
 
 		return parsedChats, err
@@ -61,7 +52,7 @@ func GetMessages(userId string) ([]openai.ChatCompletionMessage, error) {
 	} else if len(rawMessages) == 0 {
 		messages = StartMessages()
 	} else {
-		messages, err = ParseArrayToMessages(rawMessages)
+		messages, err = ConvertToOpenaiMessage(rawMessages)
 
 		CheckSystemMessages(&messages)
 
@@ -82,7 +73,7 @@ func AddMessage(messages *[]openai.ChatCompletionMessage, role string, message s
 }
 
 func SaveMessages(userId string, messages []openai.ChatCompletionMessage) error {
-	arrayMessages := SerializeMessagesToArray(messages)
+	arrayMessages := ConvertToMessage(messages)
 
 	err := chat_repos.SaveChat(userId, arrayMessages)
 	if err != nil {
@@ -92,34 +83,28 @@ func SaveMessages(userId string, messages []openai.ChatCompletionMessage) error 
 	return nil
 }
 
-func SerializeMessagesToArray(messages []openai.ChatCompletionMessage) []string {
-	var arrayMessages []string
+func ConvertToMessage(messages []openai.ChatCompletionMessage) []Message {
+	var messagesArray []Message
 
-	for _, value := range messages {
-		role := value.Role
-		content := value.Content
-
-		arrayMessages = append(arrayMessages, role+"||"+content)
+	for _, message := range messages {
+		messagesArray = append(messagesArray, Message{
+			Role:    message.Role,
+			Content: message.Content,
+			Time:    time.Now(),
+		})
 	}
 
-	return arrayMessages
+	return messagesArray
 }
 
-func ParseArrayToMessages(arrayMessages []string) ([]openai.ChatCompletionMessage, error) {
+func ConvertToOpenaiMessage(arrayMessages []Message) ([]openai.ChatCompletionMessage, error) {
 	var messages []openai.ChatCompletionMessage
 
-	for _, value := range arrayMessages {
-		parts := strings.SplitN(value, "||", 2)
-
-		set := mapset.NewSet("system", "assistant", "user")
-		if len(parts) == 2 && set.Contains(parts[0]) {
-			messages = append(messages, openai.ChatCompletionMessage{
-				Role:    parts[0],
-				Content: parts[1],
-			})
-		} else {
-			return []openai.ChatCompletionMessage{}, errors.New("messages have wrong structure, incorrect user type")
-		}
+	for _, message := range arrayMessages {
+		messages = append(messages, openai.ChatCompletionMessage{
+			Role:    message.Role,
+			Content: message.Content,
+		})
 	}
 
 	return messages, nil
