@@ -11,12 +11,13 @@ func CheckIfExist(userId string) ([]Message, error) {
 	db := database.GetDB()
 	var chat Chat
 
-	if err := db.Where("user_id = ?", userId).First(&chat).Error; err != nil {
+	if err := db.Preload("Messages").Where("user_id = ?", userId).First(&chat).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return []Message{}, nil
 		}
 		return []Message{}, err
 	}
+
 	return chat.Messages, nil
 }
 
