@@ -35,11 +35,13 @@ func WhatsappWebhook(c *gin.Context) {
 	response, err := chat.Conservation(c, from, body)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("Conservation error")
 		return
 	}
 
 	if err := twillio.SendTwilioMessage(from, response); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("Twillio error")
 		return
 	}
 
