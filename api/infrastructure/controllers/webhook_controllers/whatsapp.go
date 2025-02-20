@@ -3,6 +3,7 @@ package webhook_controllers
 import (
 	"AISale/services/chat"
 	"AISale/services/twillio"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -31,6 +32,8 @@ func WhatsappAnswer(c *gin.Context) {
 func WhatsappReminderStart(c *gin.Context) {
 	from := c.PostForm("From")
 	status := c.PostForm("SmsStatus")
+
+	fmt.Printf("Добавление чата пользователя %s!\n", from)
 
 	if status == "delivered" {
 		err := chat.CreateWaitingChat(from)
