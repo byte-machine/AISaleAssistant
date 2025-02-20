@@ -19,6 +19,7 @@ func RouterStart(settings config.Settings) {
 	}))
 
 	rest.ChatRoutes(r, settings)
+	rest.WebHookRoutes(r, settings)
 
 	err := r.Run(":8081")
 	if err != nil {
