@@ -20,7 +20,7 @@ func Remind(from string) error {
 		return err
 	}
 
-	err = twillio.SendTwilioMessage("whatsapp:"+from, "Вспомните обо мне!")
+	err = twillio.SendTwilioMessage(from, "Вспомните обо мне!")
 	if err != nil {
 		return err
 	}
