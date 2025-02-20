@@ -7,21 +7,21 @@ import (
 	"gorm.io/gorm"
 )
 
-func CheckIfExist(userId string) ([]Message, error) {
+func CheckIfExist(userId string) (Chat, error) {
 	db := database.GetDB()
 	var chat Chat
 
 	if err := db.Preload("Messages").Where("user_id = ?", userId).First(&chat).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return []Message{}, nil
+			return Chat{}, nil
 		}
-		return []Message{}, err
+		return Chat{}, err
 	}
 
-	return chat.Messages, nil
+	return chat, nil
 }
 
-func SaveChat(userId string, messages []Message) error {
+func Save(userId string, messages []Message) error {
 	db := database.GetDB()
 
 	var chat Chat
@@ -50,7 +50,7 @@ func SaveChat(userId string, messages []Message) error {
 	return nil
 }
 
-func GetAllChats() ([]Chat, error) {
+func GetAll() ([]Chat, error) {
 	db := database.GetDB()
 	var chats []Chat
 

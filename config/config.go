@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
 	"os"
+	"time"
 )
 
 type Settings struct {
@@ -41,6 +42,8 @@ func LoadENV() (Settings, error) {
 
 	return settings, nil
 }
+
+const WaitingTime = time.Hour
 
 var Messages = []openai.ChatCompletionMessage{
 	{

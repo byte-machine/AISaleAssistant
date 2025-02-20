@@ -4,6 +4,7 @@ import (
 	"AISale/api"
 	"AISale/config"
 	"AISale/database"
+	"AISale/services/background"
 	"log"
 )
 
@@ -16,6 +17,8 @@ func main() {
 
 	database.Connect(settings)
 	defer database.Disconnect()
+
+	go background.CheckWaitingChats()
 
 	api.RouterStart(settings)
 }

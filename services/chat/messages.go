@@ -22,15 +22,15 @@ import (
 //}
 
 func GetHistory(userId string) ([]Message, error) {
-	messages, err := chat_repos.CheckIfExist(userId)
+	chat, err := chat_repos.CheckIfExist(userId)
 
-	return messages, err
+	return chat.Messages, err
 }
 
 func GetAllChats() ([]string, error) {
 	var parsedChats []string
 
-	chats, err := chat_repos.GetAllChats()
+	chats, err := chat_repos.GetAll()
 	if err == nil && len(chats) > 0 {
 		for _, chat := range chats {
 
@@ -46,7 +46,9 @@ func GetAllChats() ([]string, error) {
 func GetMessages(userId string) ([]openai.ChatCompletionMessage, error) {
 	var messages []openai.ChatCompletionMessage
 
-	rawMessages, err := chat_repos.CheckIfExist(userId)
+	chat, err := chat_repos.CheckIfExist(userId)
+	rawMessages := chat.Messages
+
 	if err != nil {
 		return messages, err
 	} else if len(rawMessages) == 0 {
@@ -75,7 +77,7 @@ func AddMessage(messages *[]openai.ChatCompletionMessage, role string, message s
 func SaveMessages(userId string, messages []openai.ChatCompletionMessage) error {
 	arrayMessages := ConvertToMessage(messages)
 
-	err := chat_repos.SaveChat(userId, arrayMessages)
+	err := chat_repos.Save(userId, arrayMessages)
 	if err != nil {
 		return err
 	}

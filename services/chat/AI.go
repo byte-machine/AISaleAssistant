@@ -39,7 +39,6 @@ func Conservation(c *gin.Context, userId string, userMessage string) (string, er
 		if err := chat_repos.SetClientStatusTrue(userId); err != nil {
 			return "", err
 		}
-		//response.Choices[0].Message.Content = "Отлично, мы позвоним вам в ближайшее время для совершения оплаты услуг."
 
 		response.Choices[0].Message.Content = strings.ReplaceAll(response.Choices[0].Message.Content, "ending", "")
 		response.Choices[0].Message.Content = strings.ReplaceAll(response.Choices[0].Message.Content, "|", "")
