@@ -43,7 +43,7 @@ func LoadENV() (Settings, error) {
 	return settings, nil
 }
 
-const WaitingTime = time.Minute
+const WaitingTime = time.Hour
 
 var Messages = []openai.ChatCompletionMessage{
 	{
