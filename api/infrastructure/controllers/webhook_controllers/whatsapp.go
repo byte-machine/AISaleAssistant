@@ -30,14 +30,14 @@ func WhatsappAnswer(c *gin.Context) {
 }
 
 func WhatsappReminderStart(c *gin.Context) {
-	from := c.PostForm("From")
+	to := c.PostForm("To")
 	status := c.PostForm("SmsStatus")
 
-	fmt.Printf("Добавление чата пользователя %s!\n", from)
+	fmt.Printf("Добавление чата пользователя %s!\n", to)
 	fmt.Printf("Статус %s!\n", status)
 
 	if status == "delivered" {
-		err := chat.CreateWaitingChat(from)
+		err := chat.CreateWaitingChat(to)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

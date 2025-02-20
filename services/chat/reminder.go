@@ -5,8 +5,8 @@ import (
 	"AISale/services/twillio"
 )
 
-func CreateWaitingChat(from string) error {
-	err := waiting_chat_repos.Create(from)
+func CreateWaitingChat(to string) error {
+	err := waiting_chat_repos.Create(to)
 	if err != nil {
 		return err
 	}
