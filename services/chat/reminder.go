@@ -1,18 +1,12 @@
 package chat
 
 import (
-	"AISale/database/models/repos/chat_repos"
 	"AISale/database/models/repos/waiting_chat_repos"
 	"AISale/services/twillio"
 )
 
 func CreateWaitingChat(from string) error {
-	chat, err := chat_repos.CheckIfExist(from)
-	if err != nil {
-		return err
-	}
-
-	err = waiting_chat_repos.Create(chat.UserID)
+	err := waiting_chat_repos.Create(from)
 	if err != nil {
 		return err
 	}
@@ -26,7 +20,7 @@ func Remind(from string) error {
 		return err
 	}
 
-	err = twillio.SendTwilioMessage(from, "Вспомните обо мне!")
+	err = twillio.SendTwilioMessage("whatsapp:"+from, "Вспомните обо мне!")
 	if err != nil {
 		return err
 	}

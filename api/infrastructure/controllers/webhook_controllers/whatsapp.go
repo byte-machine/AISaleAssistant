@@ -34,6 +34,7 @@ func WhatsappReminderStart(c *gin.Context) {
 	status := c.PostForm("SmsStatus")
 
 	fmt.Printf("Добавление чата пользователя %s!\n", from)
+	fmt.Printf("Статус %s!\n", status)
 
 	if status == "delivered" {
 		err := chat.CreateWaitingChat(from)
