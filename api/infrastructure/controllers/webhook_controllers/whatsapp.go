@@ -1,6 +1,8 @@
 package webhook_controllers
 
 import (
+	"AISale/database/models"
+	"AISale/database/models/repos/waiting_chat_repos"
 	"AISale/services/chat"
 	"AISale/services/twillio"
 	"fmt"
@@ -14,6 +16,11 @@ func WhatsappAnswer(c *gin.Context) {
 	body := c.PostForm("Body")
 
 	log.Printf("💬 Сообщение от %s: %s\n", from, body)
+
+	err := waiting_chat_repos.Delete(from)
+	if err != nil {
+		log.Printf("waiting chat deleting error: %s\n", err.Error())
+	}
 
 	response, err := chat.Conservation(c, from, body)
 	if err != nil {
@@ -37,10 +44,16 @@ func WhatsappReminderStart(c *gin.Context) {
 	fmt.Printf("Статус %s!\n", status)
 
 	if status == "delivered" {
-		err := chat.CreateWaitingChat(to)
+		exist, err := waiting_chat_repos.CheckIfExist(to)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
+		}
+		if exist == (models.WaitingChat{}) {
+			err = chat.CreateWaitingChat(to)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
 		}
 	}
 

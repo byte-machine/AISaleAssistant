@@ -15,12 +15,12 @@ func CreateWaitingChat(to string) error {
 }
 
 func Remind(from string) error {
-	err := waiting_chat_repos.Delete(from)
+	err := twillio.SendTwilioMessage(from, "Вспомните обо мне!")
 	if err != nil {
 		return err
 	}
 
-	err = twillio.SendTwilioMessage(from, "Вспомните обо мне!")
+	err = waiting_chat_repos.SetIsRemindedTrue(from)
 	if err != nil {
 		return err
 	}

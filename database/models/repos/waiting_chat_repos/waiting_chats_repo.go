@@ -4,6 +4,7 @@ import (
 	"AISale/database"
 	. "AISale/database/models"
 	"errors"
+	"gorm.io/gorm"
 )
 
 func Create(userId string) error {
@@ -42,4 +43,25 @@ func GetAll() ([]WaitingChat, error) {
 	}
 
 	return waitingChats, nil
+}
+
+func CheckIfExist(userId string) (WaitingChat, error) {
+	db := database.GetDB()
+	var chat WaitingChat
+
+	if err := db.Where("chat_user_id = ?", userId).First(&chat).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return WaitingChat{}, nil
+		}
+		return WaitingChat{}, err
+	}
+
+	return chat, nil
+}
+
+func SetIsRemindedTrue(userId string) error {
+	db := database.GetDB()
+
+	return db.Model(&WaitingChat{}).Where("chat_user_id = ?", userId).Update("is_reminded", true).Error
+
 }
