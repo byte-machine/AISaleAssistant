@@ -47,18 +47,21 @@ func GetMessages(userId string) ([]openai.ChatCompletionMessage, error) {
 	var messages []openai.ChatCompletionMessage
 
 	chat, err := chat_repos.CheckIfExist(userId)
+	messages = StartMessages()
 	rawMessages := chat.Messages
 
 	if err != nil {
 		return messages, err
-	} else if len(rawMessages) == 0 {
-		messages = StartMessages()
-	} else {
-		messages, err = ConvertToOpenaiMessage(rawMessages)
+	} else if len(chat.Messages) != 0 {
+		convertedMessages, err := ConvertToOpenaiMessage(rawMessages)
+		if err != nil {
+			return messages, err
+		}
 
-		CheckSystemMessages(&messages)
+		messages = append(messages, convertedMessages...)
+		// CheckSystemMessages(&messages)
 
-		return messages, err
+		return messages, nil
 	}
 
 	return messages, nil
@@ -75,6 +78,7 @@ func AddMessage(messages *[]openai.ChatCompletionMessage, role string, message s
 }
 
 func SaveMessages(userId string, messages []openai.ChatCompletionMessage) error {
+	RemoveSystemMessages(&messages)
 	arrayMessages := ConvertToMessage(messages)
 
 	err := chat_repos.Save(userId, arrayMessages)
@@ -131,31 +135,43 @@ func ParseArrayToArray(arrayMessages []string) ([]Message, error) {
 	return messages, nil
 }
 
-func CheckSystemMessages(messages *[]openai.ChatCompletionMessage) {
-	var systemMessages, otherMessages []openai.ChatCompletionMessage
+//func CheckSystemMessages(messages *[]openai.ChatCompletionMessage) {
+//	var systemMessages, otherMessages []openai.ChatCompletionMessage
+//
+//	for _, message := range *messages {
+//		if message.Role == "system" {
+//			systemMessages = append(systemMessages, message)
+//		} else {
+//			otherMessages = append(otherMessages, message)
+//		}
+//	}
+//
+//	var isUpdated = true
+//	if len(config.Messages) != len(systemMessages) {
+//		isUpdated = false
+//	} else {
+//		for num, message := range config.Messages {
+//			if systemMessages[num].Content != message.Content {
+//				isUpdated = false
+//				break
+//			}
+//		}
+//	}
+//
+//	if !isUpdated {
+//		*messages = config.Messages
+//		*messages = append(*messages, otherMessages...)
+//	}
+//}
+
+func RemoveSystemMessages(messages *[]openai.ChatCompletionMessage) {
+	var otherMessages []openai.ChatCompletionMessage
 
 	for _, message := range *messages {
-		if message.Role == "system" {
-			systemMessages = append(systemMessages, message)
-		} else {
+		if message.Role != "system" {
 			otherMessages = append(otherMessages, message)
 		}
 	}
 
-	var isUpdated = true
-	if len(config.Messages) != len(systemMessages) {
-		isUpdated = false
-	} else {
-		for num, message := range config.Messages {
-			if systemMessages[num].Content != message.Content {
-				isUpdated = false
-				break
-			}
-		}
-	}
-
-	if !isUpdated {
-		*messages = config.Messages
-		*messages = append(*messages, otherMessages...)
-	}
+	*messages = otherMessages
 }
