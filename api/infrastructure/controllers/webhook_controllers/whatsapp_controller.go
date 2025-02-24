@@ -25,11 +25,13 @@ func WhatsappAnswer(c *gin.Context) {
 	response, err := chat.Conservation(c, from, body)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("conservation error: %s\n", err.Error())
 		return
 	}
 
 	if err = twillio.SendTwilioMessage(from, response); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("send to twillio error: %s\n", err.Error())
 		return
 	}
 
