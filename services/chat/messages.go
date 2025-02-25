@@ -43,11 +43,11 @@ func GetAllChats() ([]string, error) {
 	return parsedChats, err
 }
 
-func GetMessages(userId string) ([]openai.ChatCompletionMessage, error) {
+func GetMessages(userId string, consType config.ConservationType) ([]openai.ChatCompletionMessage, error) {
 	var messages []openai.ChatCompletionMessage
 
 	chat, err := chat_repos.CheckIfExist(userId)
-	messages = StartMessages()
+	messages = StartMessages(consType)
 	rawMessages := chat.Messages
 
 	if err != nil {
@@ -67,10 +67,14 @@ func GetMessages(userId string) ([]openai.ChatCompletionMessage, error) {
 	return messages, nil
 }
 
-func StartMessages() []openai.ChatCompletionMessage {
+func StartMessages(consType config.ConservationType) []openai.ChatCompletionMessage {
 	log.Printf("Принял системный промпт")
 
-	return config.Messages
+	if consType == config.Bytemachine {
+		return config.BytemachineMessages
+	} else {
+		return config.TwilioMessages
+	}
 }
 
 func AddMessage(messages *[]openai.ChatCompletionMessage, role string, message string) {

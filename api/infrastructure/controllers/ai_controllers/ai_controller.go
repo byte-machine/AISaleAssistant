@@ -1,6 +1,7 @@
 package ai_controllers
 
 import (
+	"AISale/config"
 	"AISale/services/chat"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -15,7 +16,7 @@ func SendMessage(c *gin.Context) {
 	userId := c.PostForm("user_id")
 	userMessage := c.PostForm("user_message")
 
-	response, err := chat.Conservation(c, userId, userMessage)
+	response, err := chat.Conservation(c, userId, userMessage, config.Bytemachine)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

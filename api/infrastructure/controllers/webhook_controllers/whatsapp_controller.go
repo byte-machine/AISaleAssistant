@@ -1,6 +1,7 @@
 package webhook_controllers
 
 import (
+	"AISale/config"
 	"AISale/database/models"
 	"AISale/database/models/repos/waiting_chat_repos"
 	"AISale/services/chat"
@@ -22,7 +23,7 @@ func WhatsappAnswer(c *gin.Context) {
 		log.Printf("waiting chat deleting error: %s\n", err.Error())
 	}
 
-	response, err := chat.Conservation(c, from, body)
+	response, err := chat.Conservation(c, from, body, config.Twilio)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		log.Printf("conservation error: %s\n", err.Error())

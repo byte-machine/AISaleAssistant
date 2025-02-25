@@ -8,11 +8,18 @@ import (
 	"strings"
 )
 
-func GetAnswer(c *gin.Context, messages []openai.ChatCompletionMessage) (openai.ChatCompletionResponse, error) {
+func GetAnswer(c *gin.Context, messages []openai.ChatCompletionMessage, consType config.ConservationType) (openai.ChatCompletionResponse, error) {
 	client := config.GetAIClient()
 
+	var model string
+	if consType == config.Bytemachine {
+		model = "gpt-3.5-turbo"
+	} else if consType == config.Twilio {
+		model = "ft:gpt-3.5-turbo-0125:personal::B07BtIZ4"
+	}
+
 	response, err := client.CreateChatCompletion(c, openai.ChatCompletionRequest{
-		Model:    "ft:gpt-3.5-turbo-0125:personal::B07BtIZ4",
+		Model:    model,
 		Messages: messages,
 	})
 	if err != nil {
@@ -22,20 +29,20 @@ func GetAnswer(c *gin.Context, messages []openai.ChatCompletionMessage) (openai.
 	return response, nil
 }
 
-func Conservation(c *gin.Context, userId string, userMessage string) (string, error) {
-	messages, err := GetMessages(userId)
+func Conservation(c *gin.Context, userId string, userMessage string, consType config.ConservationType) (string, error) {
+	messages, err := GetMessages(userId, consType)
 	if err != nil {
 		return "", err
 	}
 
 	AddMessage(&messages, "user", userMessage)
 
-	response, err := GetAnswer(c, messages)
+	response, err := GetAnswer(c, messages, consType)
 	if err != nil {
 		return "", err
 	}
 
-	if strings.Contains(response.Choices[0].Message.Content, "ending") {
+	if consType == config.Twilio && strings.Contains(response.Choices[0].Message.Content, "ending") {
 		if err := chat_repos.SetClientStatusTrue(userId); err != nil {
 			return "", err
 		}
