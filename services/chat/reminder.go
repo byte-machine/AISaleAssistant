@@ -25,7 +25,7 @@ func Remind(userId string) error {
 		return err
 	}
 
-	err = twillio.SendTwilioMessage(message, "Вспомните обо мне!")
+	err = twillio.SendTwilioMessage(userId, message)
 	if err != nil {
 		return err
 	}
