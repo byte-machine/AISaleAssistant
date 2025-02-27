@@ -73,7 +73,7 @@ func StartMessages(consType config.ConservationType) []openai.ChatCompletionMess
 	if consType == config.Bytemachine {
 		return config.BytemachineMessages
 	} else {
-		return config.TwilioMessages
+		return config.TwilioNewMessages
 	}
 }
 
