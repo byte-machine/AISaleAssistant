@@ -14,7 +14,7 @@ func GetAnswer(c *gin.Context, messages []openai.ChatCompletionMessage, consType
 	var model string
 	if consType == config.Bytemachine {
 		model = "gpt-3.5-turbo"
-	} else if consType == config.Twilio {
+	} else {
 		model = "ft:gpt-3.5-turbo-0125:personal::B07BtIZ4"
 	}
 
@@ -35,7 +35,11 @@ func Conservation(c *gin.Context, userId string, userMessage string, consType co
 		return "", err
 	}
 
-	AddMessage(&messages, "user", userMessage)
+	if consType == config.Remind {
+		AddMessage(&messages, "system", userMessage)
+	} else {
+		AddMessage(&messages, "user", userMessage)
+	}
 
 	response, err := GetAnswer(c, messages, consType)
 	if err != nil {
@@ -43,7 +47,7 @@ func Conservation(c *gin.Context, userId string, userMessage string, consType co
 	}
 
 	if consType == config.Twilio && strings.Contains(response.Choices[0].Message.Content, "ending") {
-		if err := chat_repos.SetClientStatusTrue(userId); err != nil {
+		if err = chat_repos.SetClientStatusTrue(userId); err != nil {
 			return "", err
 		}
 

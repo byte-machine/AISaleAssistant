@@ -1,8 +1,11 @@
 package chat
 
 import (
+	"AISale/config"
 	"AISale/database/models/repos/waiting_chat_repos"
 	"AISale/services/twillio"
+	"github.com/gin-gonic/gin"
+	"net/http/httptest"
 )
 
 func CreateWaitingChat(to string) error {
@@ -14,13 +17,20 @@ func CreateWaitingChat(to string) error {
 	return nil
 }
 
-func Remind(from string) error {
-	err := twillio.SendTwilioMessage(from, "Вспомните обо мне!")
+func Remind(userId string) error {
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	message, err := Conservation(c, userId, "пользователь долго не отвечает, возобнови беседу сообщением такого типа: '\nСогласитесь, легче заплатить 120000 (на 10 человек) и обезопасить себя от проверок на целый год, чем рисковать попасть под штраф в 750 000 или еще хуже, понести уголовную ответственность при несчастном случае'", config.Remind)
 	if err != nil {
 		return err
 	}
 
-	err = waiting_chat_repos.SetIsRemindedTrue(from)
+	err = twillio.SendTwilioMessage(message, "Вспомните обо мне!")
+	if err != nil {
+		return err
+	}
+
+	err = waiting_chat_repos.SetIsRemindedTrue(userId)
 	if err != nil {
 		return err
 	}

@@ -1,4 +1,4 @@
-package background
+package jobs
 
 import (
 	"AISale/config"
@@ -21,6 +21,7 @@ func CheckWaitingChats() {
 
 				err = chat.Remind(waitingChat.ChatUserID)
 				if err != nil {
+					fmt.Printf("Произошла ошибка во время напоминания: %s", waitingChat.ChatUserID)
 					continue
 				}
 			}
