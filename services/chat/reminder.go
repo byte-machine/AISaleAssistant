@@ -30,7 +30,7 @@ func Remind(userId string) error {
 		return err
 	}
 
-	err = waiting_chat_repos.SetIsRemindedTrue(userId)
+	err = waiting_chat_repos.SetIsReminded(userId, true)
 	if err != nil {
 		return err
 	}

@@ -44,6 +44,7 @@ func LoadENV() (Settings, error) {
 }
 
 const WaitingTime = time.Minute
+const MaxRemindCount = 2
 
 var TwilioMessages = []openai.ChatCompletionMessage{
 	{
@@ -106,7 +107,6 @@ var TwilioMessages = []openai.ChatCompletionMessage{
 			`- Антикоррупционный менеджмент ISO 37001 и комплаенс – 35 000 тг. `,
 	},
 }
-
 var TwilioNewMessages = []openai.ChatCompletionMessage{
 	{
 		Role: openai.ChatMessageRoleSystem,

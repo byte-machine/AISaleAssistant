@@ -16,7 +16,7 @@ func CheckWaitingChats() {
 		}
 
 		for _, waitingChat := range waitingChats {
-			if time.Since(waitingChat.Since) >= config.WaitingTime && !waitingChat.IsReminded {
+			if !waitingChat.IsReminded && waitingChat.RemindCount < config.MaxRemindCount && time.Since(waitingChat.Since) >= config.WaitingTime {
 				fmt.Printf("Прошел 1 час, напоминаем пользователю %s!\n", waitingChat.ChatUserID)
 
 				err = chat.Remind(waitingChat.ChatUserID)

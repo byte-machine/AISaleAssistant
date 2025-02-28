@@ -25,7 +25,7 @@ func Save(userId string, messages []Message) error {
 	db := database.GetDB()
 
 	var chat Chat
-	result := db.First(&chat, "user_id = ?", userId)
+	result := db.Preload("Messages").First(&chat, "user_id = ?", userId)
 
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -41,10 +41,22 @@ func Save(userId string, messages []Message) error {
 		return errors.New("error checking the record: " + result.Error.Error())
 	}
 
-	chat.UserID = userId
-	chat.Messages = messages
-	if err := db.Save(&chat).Error; err != nil {
-		return errors.New("error updating the record: " + err.Error())
+	existingMessages := make(map[string]bool)
+	for _, msg := range chat.Messages {
+		existingMessages[msg.Content] = true
+	}
+
+	var newMessages []Message
+	for _, msg := range messages {
+		if !existingMessages[msg.Content] {
+			newMessages = append(newMessages, msg)
+		}
+	}
+
+	if len(newMessages) > 0 {
+		if err := db.Create(&newMessages).Error; err != nil {
+			return errors.New("error adding new messages: " + err.Error())
+		}
 	}
 
 	return nil

@@ -5,6 +5,7 @@ import (
 	. "AISale/database/models"
 	"errors"
 	"gorm.io/gorm"
+	"time"
 )
 
 func Create(userId string) error {
@@ -59,9 +60,28 @@ func CheckIfExist(userId string) (WaitingChat, error) {
 	return chat, nil
 }
 
-func SetIsRemindedTrue(userId string) error {
+func SetIsReminded(userId string, state bool) error {
 	db := database.GetDB()
 
-	return db.Model(&WaitingChat{}).Where("chat_user_id = ?", userId).Update("is_reminded", true).Error
+	return db.Model(&WaitingChat{}).Where("chat_user_id = ?", userId).Update("is_reminded", state).Error
+}
 
+func FindIfReminded(userId string) (WaitingChat, error) {
+	db := database.GetDB()
+	var waitingChat WaitingChat
+
+	if err := db.Where("chat_user_id = ? AND is_reminded = ?", userId, true).First(&waitingChat).Error; err != nil {
+		return WaitingChat{}, err
+	}
+
+	return waitingChat, nil
+}
+
+func AddCount(waitingChat *WaitingChat) error {
+	db := database.GetDB()
+
+	waitingChat.RemindCount += 1
+	waitingChat.Since = time.Now()
+
+	return db.Save(waitingChat).Error
 }

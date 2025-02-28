@@ -18,9 +18,19 @@ func WhatsappAnswer(c *gin.Context) {
 
 	log.Printf("💬 Сообщение от %s: %s\n", from, body)
 
-	err := waiting_chat_repos.Delete(from)
-	if err != nil {
-		log.Printf("waiting chat deleting error: %s\n", err.Error())
+	//err := waiting_chat_repos.Delete(from)
+	//if err != nil {
+	//	log.Printf("waiting chat deleting error: %s\n", err.Error())
+	//}
+	if reminded, err := waiting_chat_repos.FindIfReminded(from); err != nil {
+		log.Printf("error find waiting chat: %s\n", err.Error())
+	} else {
+		if err = waiting_chat_repos.AddCount(&reminded); err != nil {
+			log.Printf("error add count to waiting chat: %s\n", err.Error())
+		}
+		if err = waiting_chat_repos.SetIsReminded(reminded.ChatUserID, false); err != nil {
+			log.Printf("error set is_reminded of waiting chat: %s\n", err.Error())
+		}
 	}
 
 	response, err := chat.Conservation(c, from, body, config.Twilio)
@@ -47,11 +57,11 @@ func WhatsappReminderStart(c *gin.Context) {
 	fmt.Printf("Статус %s!\n", status)
 
 	if status == "delivered" {
-		exist, err := waiting_chat_repos.CheckIfExist(to)
-		if err != nil {
+
+		if exist, err := waiting_chat_repos.CheckIfExist(to); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
-		}
-		if exist == (models.WaitingChat{}) {
+		} else if exist == (models.WaitingChat{}) {
 			err = chat.CreateWaitingChat(to)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
