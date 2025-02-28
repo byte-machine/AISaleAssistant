@@ -49,6 +49,7 @@ func Save(userId string, messages []Message) error {
 	var newMessages []Message
 	for _, msg := range messages {
 		if !existingMessages[msg.Content] {
+			msg.ChatUserID = chat.UserID
 			newMessages = append(newMessages, msg)
 		}
 	}
