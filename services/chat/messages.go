@@ -44,10 +44,8 @@ func GetAllChats() ([]string, error) {
 }
 
 func GetMessages(userId string, consType config.ConservationType) ([]openai.ChatCompletionMessage, error) {
-	var messages []openai.ChatCompletionMessage
-
 	chat, err := chat_repos.CheckIfExist(userId)
-	messages = StartMessages(consType)
+	messages := StartMessages(consType)
 	rawMessages := chat.Messages
 
 	if err != nil {
@@ -62,6 +60,8 @@ func GetMessages(userId string, consType config.ConservationType) ([]openai.Chat
 		// CheckSystemMessages(&messages)
 
 		return messages, nil
+	} else if len(chat.Messages) == 0 {
+		messages = append(messages, config.StartBotMessage...)
 	}
 
 	return messages, nil
