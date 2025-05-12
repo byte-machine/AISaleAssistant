@@ -2,9 +2,10 @@ package chat
 
 import (
 	"AISale/config"
-	"AISale/database/models/repos/chat_repos"
+	"AISale/services/external_api"
 	"github.com/gin-gonic/gin"
 	"github.com/sashabaranov/go-openai"
+	"log"
 	"strings"
 )
 
@@ -46,16 +47,14 @@ func Conservation(c *gin.Context, userId string, userMessage string, consType co
 		return "", err
 	}
 
-	if consType == config.Twilio && strings.Contains(response.Choices[0].Message.Content, "ending") {
-		if err = chat_repos.SetClientStatusTrue(userId); err != nil {
-			return "", err
-		}
+	jsonText := GetJSONFromText(response.Choices[0].Message.Content)
+	log.Printf("Наличие json в смтроке %s\n", jsonText)
+	if len(jsonText) != 0 {
+		response.Choices[0].Message.Content = strings.TrimSpace(strings.Replace(response.Choices[0].Message.Content, jsonText, "", 1))
 
-		response.Choices[0].Message.Content = strings.ReplaceAll(response.Choices[0].Message.Content, "ending", "")
-		response.Choices[0].Message.Content = strings.ReplaceAll(response.Choices[0].Message.Content, "|", "")
-		if len(response.Choices[0].Message.Content) <= 5 {
-			response.Choices[0].Message.Content = "Отлично, мы позвоним вам в ближайшее время для совершения оплаты услуг."
-		}
+		log.Printf("Данные для записи пользователя %s: %s\n", userId, jsonText)
+
+		external_api.SendToAli(jsonText)
 	}
 
 	AddMessage(&messages, "assistant", response.Choices[0].Message.Content)

@@ -5,9 +5,11 @@ import (
 	. "AISale/database/models"
 	"AISale/database/models/repos/chat_repos"
 	"errors"
+	"fmt"
 	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/sashabaranov/go-openai"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -20,6 +22,18 @@ import (
 //	UserID   string
 //	Messages []Message
 //}
+
+func GetJSONFromText(text string) string {
+	re := regexp.MustCompile(`\{.*\}`)
+
+	jsonText := re.FindString(text)
+	if jsonText == "" {
+		fmt.Println("JSON не найден")
+		return ""
+	}
+
+	return jsonText
+}
 
 func GetHistory(userId string) ([]Message, error) {
 	chat, err := chat_repos.CheckIfExist(userId)
@@ -60,9 +74,9 @@ func GetMessages(userId string, consType config.ConservationType) ([]openai.Chat
 		// CheckSystemMessages(&messages)
 
 		return messages, nil
-	} else if len(chat.Messages) == 0 {
-		messages = append(messages, config.StartBotMessage...)
-	}
+	} //else if len(chat.Messages) == 0 {
+	//	messages = append(messages, config.StartBotMessage...)
+	//}
 
 	return messages, nil
 }

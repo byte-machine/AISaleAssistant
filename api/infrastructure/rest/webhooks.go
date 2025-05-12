@@ -10,6 +10,6 @@ func WebHookRoutes(router *gin.Engine, settings config.Settings) {
 	productGroup := router.Group("webhook")
 	{
 		productGroup.POST("/whatsapp_answer", webhook_controllers.WhatsappAnswer)
-		productGroup.POST("/whatsapp_delivered", webhook_controllers.WhatsappReminderStart)
+		//productGroup.POST("/whatsapp_delivered", webhook_controllers.WhatsappReminderStart)
 	}
 }
